@@ -1,11 +1,11 @@
 #
-# $Id: Weak.pm 11 2008-04-05 13:26:33Z esobchenko $
+# $Id: Weak.pm 19 2008-04-05 17:55:59Z esobchenko $
 package Cache::Weak;
 
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('1.0.0');
+use version; our $VERSION = qv('1.0.1');
 
 use Carp qw/carp croak/;
 use Scalar::Util qw/weaken/;
@@ -13,6 +13,7 @@ use Scalar::Util qw/weaken/;
 use constant {
 	DEFAULT_NAMESPACE => '_',
 	DEFAULT_AUTO_PURGE_INTERVAL => 1000,
+	DEFAULT_AUTO_PURGE => 1,
 };
 
 # data is stored in the form: $cache_data{$namespace}{$key} = $object
@@ -60,10 +61,22 @@ sub auto_purge_interval {
 	if (@_) {
 		$self->{auto_purge_interval} = shift;
 	}
-	return $cache_meta{ $self->namespace }{auto_purge_interval} = $self->{auto_purge_interval} || DEFAULT_AUTO_PURGE_INTERVAL;
+	return $cache_meta{ $self->namespace }{auto_purge_interval}
+		= defined $self->{auto_purge_interval} ?
+		$self->{auto_purge_interval} : DEFAULT_AUTO_PURGE_INTERVAL;
 }
 
-# private method: increment namespace reference counter and return its value
+sub auto_purge {
+	my $self = shift;
+	if (@_) {
+		$self->{auto_purge} = shift;
+	}
+	return $cache_meta{ $self->namespace }{auto_purge}
+		= defined $self->{auto_purge} ?
+		$self->{auto_purge} : DEFAULT_AUTO_PURGE;
+}
+
+# private method: increment access counter for the given namespace and return it's value
 sub _inc_count {
 	my $self = shift;
 	return $cache_meta{ $self->namespace }{count} += 1;
@@ -73,6 +86,11 @@ sub _inc_count {
 sub _keys {
 	my $self = shift;
 	return keys %{ $cache_data{ $self->namespace } };
+}
+
+sub count {
+	my $self = shift;
+	return int scalar $self->_keys;
 }
 
 sub get {
@@ -86,7 +104,9 @@ sub set {
 	croak "attempting to set non-reference value" unless ref $object;
 
 	# is it time to purge cache from dead objects?
-	$self->purge unless ( $self->_inc_count % $self->auto_purge_interval );
+	if ( $self->auto_purge ) {
+		$self->purge unless ( $self->_inc_count % $self->auto_purge_interval );
+	}
 
 	weaken ( $cache_data{ $self->namespace }{$key} = $object );
 	return 1;
@@ -124,11 +144,11 @@ __END__
 
 =head1 NAME
 
-<Cache::Weak> - simple Perl object cache based on weak references
+Cache::Weak - simple Perl object cache based on weak references
 
 =head1 VERSION
 
-This documentation refers to <Cache::Weak> version 1.0.0
+This documentation refers to Cache::Weak version 1.0.0
 
 =head1 SYNOPSIS
 
@@ -148,7 +168,7 @@ This is done by passing an inline hash (or hashref):
 
 	my $cache = Cache::Weak->new( namespace => 'foo' );
 
-See 'PROPERTIES' below for a list of all available properties that can be set.
+See "PROPERTIES" below for a list of all available properties that can be set.
 
 =head1 METHODS
 
@@ -183,10 +203,10 @@ Clear the data for specified entry from the cache.
 	$cache->purge();
 
 Weak references are not removed from the cache when last "real" object goes out of
-scope. This means that over time the cache will grow in memory. purge() will remove all
-dead references from cache. Usually you don't have to run purge() manually: purging is done automatically.
-By default, this happens every 1000 object loads, but you can change that default by
-setting the 'auto_purge_interval' value.
+scope. This means that over time the cache will grow in memory. C<purge()> will remove all
+dead references from cache. Usually you don't have to run C<purge()> manually: purging is done
+automatically. By default, this happens every 1000 object loads, but you can change that
+default by setting the 'auto_purge_interval' and 'auto_purge' properties.
 
 =item clear
 
@@ -194,19 +214,35 @@ setting the 'auto_purge_interval' value.
 
 Removes all entries from cache.
 
+=item count
+
+	$cache->count();
+
+Returns the number of entries in the cache.
+
 =back
 
 =head1 PROPERTIES
 
 =over
 
-=item namespace
+=item I<namespace>
+
+	my $current_ns = $cache->namespace();
 
 The namespace associated with this cache. Defaults to "_" if not explicitly set.
 
-=item auto_purge_interval
+=item I<auto_purge_interval>
 
-Sets number of object loads before auto purging is automatically performed. Default is 1000.
+	$cache->auto_purge_interval(5000);
+
+Sets number of cache object loads before auto purging is automatically performed. Default is 1000.
+
+=item I<auto_purge>
+
+	$cache->auto_purge(0); # turn off auto purge
+
+If this option is true, then the auto purge interval will be checked on every C<set()>.
 
 =back
 
@@ -223,11 +259,14 @@ not work.
 =head1 SEE ALSO
 
 L<http://en.wikipedia.org/wiki/Weak_reference> about weak references.
+
 L<Scalar::Util> for information about weak references in Perl.
+
 L<Object::Mapper> for an example of this module in use.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2008, Eugen Sobchenko, L<ejs@cpan.org>.
+Copyright 2008, Eugen Sobchenko <ejs@cpan.org>
+
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
