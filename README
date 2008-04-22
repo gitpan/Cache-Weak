@@ -1,10 +1,8 @@
 Cache::Weak
------------
 
-Simple Perl object cache based on weak references
+Perl object cache based on weak references
 
 INSTALLATION
-------------
 
 To install this module type the following:
 
@@ -16,6 +14,6 @@ To install this module type the following:
 There's also a traditional Makefile.PL, but I don't use it.
 
 COPYRIGHT AND LICENCE
----------------------
+
 Copyright 2008, Eugen Sobchenko <ejs@cpan.org>
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.

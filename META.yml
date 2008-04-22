@@ -1,9 +1,9 @@
 ---
 name: Cache-Weak
-version: 1.0.1
+version: 1.0.2
 author:
   - 'Eugen Sobchenko <ejs@cpan.org>'
-abstract: simple Perl object cache based on weak references
+abstract: weak reference cache
 license: perl
 resources:
   license: http://dev.perl.org/licenses/
@@ -15,7 +15,7 @@ requires:
 provides:
   Cache::Weak:
     file: lib/Cache/Weak.pm
-    version: 1.0.1
+    version: 1.0.2
 generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

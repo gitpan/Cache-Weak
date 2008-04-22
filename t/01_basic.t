@@ -8,7 +8,7 @@ use Test::More tests => 17;
 BEGIN { use_ok( 'Cache::Weak' ); }
 
 my $ns = "test";
-my ($key, $value) = ("foo", \"bar");
+my ($key, $value) = ("foo", \$ns);
 
 # create and check instance
 my $cache = Cache::Weak->new();
@@ -35,20 +35,20 @@ ok(!$cache->exists($key), 'exists($key) after remove($key)');
 
 # check purge
 $cache->set($key, $value);
-my $initial_size = $cache->_keys;
+my $initial_size = $cache->count();
 {
 	my $new_objects = 3;
 	my @values = 1..$new_objects;
 	for ( my $i = 1; $i <= 3; $i++ ) {
 		$cache->set($i, \$values[ $i - 1 ]);
 	}
-	is( $cache->_keys(), $initial_size + $new_objects, 'cache size before purge()' );
+	is( $cache->count(), $initial_size + $new_objects, 'cache size before purge()' );
 }
 ok( $cache->purge(), 'purge()' );
-is( $cache->_keys(), $initial_size, 'cache size after purge()' );
+is( $cache->count(), $initial_size, 'cache size after purge()' );
 
 # check cache clearing
 $cache->set($key, $value);
 ok( $cache->clear(), 'clear()' );
-ok(!$cache->_keys(), 'cache size after clear()' );
+ok(!$cache->count(), 'cache size after clear()' );
 

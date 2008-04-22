@@ -1,11 +1,11 @@
 #
-# $Id: Weak.pm 19 2008-04-05 17:55:59Z esobchenko $
+# $Id: Weak.pm 22 2008-04-22 13:28:19Z esobchenko $
 package Cache::Weak;
 
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('1.0.1');
+use version; our $VERSION = qv('1.0.2');
 
 use Carp qw/carp croak/;
 use Scalar::Util qw/weaken/;
@@ -144,11 +144,11 @@ __END__
 
 =head1 NAME
 
-Cache::Weak - simple Perl object cache based on weak references
+Cache::Weak - weak reference cache
 
 =head1 VERSION
 
-This documentation refers to Cache::Weak version 1.0.0
+This documentation refers to Cache::Weak version 1.0.2
 
 =head1 SYNOPSIS
 
