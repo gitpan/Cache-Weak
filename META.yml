@@ -1,6 +1,6 @@
 ---
 name: Cache-Weak
-version: 1.0.2
+version: 1.0.3
 author:
   - 'Eugen Sobchenko <ejs@cpan.org>'
 abstract: weak reference cache
@@ -15,7 +15,7 @@ requires:
 provides:
   Cache::Weak:
     file: lib/Cache/Weak.pm
-    version: 1.0.2
+    version: 1.0.3
 generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
